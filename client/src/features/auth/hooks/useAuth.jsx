@@ -1,7 +1,7 @@
 import React from 'react'
 import { useDispatch } from 'react-redux'
-import { loginService, registerService, logoutService, GoogleAuthURL, AppleAuthURL, } from '../services/auth.service';
-import { setUser } from '../slice/auth.slice';
+import { loginService, registerService, logoutService, GoogleAuthURL } from '../services/auth.service';
+import { setUser, clearUser } from '../slice/auth.slice';
 
 const useAuth = () => {
   const dispatch = useDispatch();
@@ -26,14 +26,14 @@ const useAuth = () => {
 
   const handleLogout = async()=>{
     try {
-      const response = await logoutService();
-      dispatch(se)
+      await logoutService();
+      dispatch(clearUser());
     } catch (error) {
-      console.error("Logout failed", error)
+      console.error("Logout failed", error);
     }
   }
 
-  return {handleRegister, handleLogin, GoogleAuthURL, AppleAuthURL, loginService}
+  return {handleRegister, handleLogin, handleLogout, GoogleAuthURL, loginService}
 }
 
 export default useAuth
