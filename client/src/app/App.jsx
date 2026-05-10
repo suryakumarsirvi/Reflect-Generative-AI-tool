@@ -14,8 +14,6 @@ const AppContent = () => {
       try {
         const response = await getMeService();
         if (response && (response.data || response.user || Object.keys(response).length > 0)) {
-          // getMeService returns { success: true, message: ..., data: req.user }
-          // So the actual user is inside response.data
           store.dispatch(setUser(response.data || response.user || response));
         }
       } catch (error) {
