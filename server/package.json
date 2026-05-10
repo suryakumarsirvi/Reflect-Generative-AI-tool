@@ -13,6 +13,7 @@
   "type": "module",
   "dependencies": {
     "@langchain/mistralai": "^1.0.8",
+    "@tavily/core": "^0.7.3",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
     "dotenv": "^17.4.2",

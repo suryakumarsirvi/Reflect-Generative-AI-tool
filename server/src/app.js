@@ -28,7 +28,6 @@ app.get('/health', (req, res) => {
     uptime: process.uptime(),
     timestamp: new Date().toISOString()
   });
-  res.send("Server is running")
 });
 
 

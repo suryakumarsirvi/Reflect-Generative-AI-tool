@@ -87,7 +87,7 @@ export const getChatMessages = async (req, res) => {
 
 export const AIresponse = async (req, res) => {
     try {
-        const { message: userMessage, chatId } = req.body;
+        const { message: userMessage, chatId, useWebSearch } = req.body;
         const userId = getUserIdFromRequest(req);
 
         if (!userId) {
@@ -148,7 +148,8 @@ export const AIresponse = async (req, res) => {
         const aiResponse = await generateAIStream({
             userMessage,
             res,
-            previousMessages
+            previousMessages,
+            useWebSearch
         });
 
         await MessageModel.create({

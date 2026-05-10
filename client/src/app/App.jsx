@@ -5,6 +5,7 @@ import { store } from "./App.store";
 import Router from './App.routes.jsx'
 import { getMeService } from "../features/auth/services/auth.service.js";
 import { setUser, setLoading } from "../features/auth/slice/auth.slice.js";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const AppContent = () => {
   const [isInitializing, setIsInitializing] = useState(true);
@@ -52,7 +53,9 @@ const App = () => {
   return (
     <div className="h-screen w-full bg-[#171615] text-white">
       <Provider store={store}>
-        <AppContent />
+        <TooltipProvider>
+          <AppContent />
+        </TooltipProvider>
       </Provider>
     </div>
   );

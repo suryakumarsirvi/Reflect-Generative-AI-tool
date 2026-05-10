@@ -23,7 +23,8 @@ export const CONFIG = Object.freeze({
     GOOGLE_OAUTH_CALLBACK: process.env.GOOGLE_OAUTH_CALLBACK,
     MISTRALAI_API_KEY: process.env.MISTRALAI_API_KEY,
     CLIENT_URL: process.env.CLIENT_URL,
-    NODE_ENV: process.env.NODE_ENV
+    NODE_ENV: process.env.NODE_ENV,
+    TAVILY_API_KEY: process.env.TAVILY_API_KEY
 });
 
 
