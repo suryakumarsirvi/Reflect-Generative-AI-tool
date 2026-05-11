@@ -13,7 +13,6 @@ const Profile = () => {
   const navigate = useNavigate();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  // Re-use useChat to fetch chat data for the AppLayout Sidebar
   const {
     chats,
     chatId,
@@ -96,7 +95,7 @@ const Profile = () => {
                     className="w-28 h-28 rounded-full object-cover border-4 border-[#2f3131]"
                   />
                 ) : (
-                  <div className="w-28 h-28 rounded-full bg-gradient-to-br from-[#2f3131] to-[#1a1c1c] border-4 border-[#202222] flex items-center justify-center shadow-inner">
+                  <div className="w-28 h-28 rounded-full bg-linear-to-br from-[#2f3131] to-[#1a1c1c] border-4 border-[#202222] flex items-center justify-center shadow-inner">
                     <span className="text-3xl font-serif text-white tracking-widest">
                       {getInitials(user?.name)}
                     </span>

@@ -2,7 +2,7 @@ import { mistralai } from "./ai.service.js";
 import { tavily } from "@tavily/core";
 import { CONFIG } from "../configs/env.config.js";
 
-const SYSTEM_PROMPT = `You are a helpful, precise, and highly intelligent assistant (similar to Perplexity AI).
+const SYSTEM_PROMPT = `You are a helpful, precise, and highly intelligent assistant (similar to Perplexity AI). You answer every question in consise and short.
 Answer the user's question clearly and accurately. If provided with web search context, base your answer heavily on that context and synthesize the information. Format your answers beautifully using Markdown. Do not hallucinate information.`;
 
 const normalizeChunkText = (chunk) => {
@@ -34,7 +34,6 @@ export const generateAIStream = async ({ userMessage, res, previousMessages = []
     
     if (useWebSearch && CONFIG.TAVILY_API_KEY) {
         try {
-            // Optional: send a status update to frontend that we are searching
             res.write(`data: ${JSON.stringify({ type: 'message', text: '*Searching the web...*\n\n' })}\n\n`);
             res.flush?.();
 

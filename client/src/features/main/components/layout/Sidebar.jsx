@@ -59,7 +59,7 @@ const Sidebar = ({
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto px-3 py-2 space-y-1 scrollbar-hide">
+      <nav className="flex-1 overflow-y-auto px-3 no-scrollar py-2 space-y-1 scrollbar-hide">
         <SidebarItem 
           icon={<Compass size={18} strokeWidth={2} />} 
           label="Discover" 

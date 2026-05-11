@@ -1,16 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
-import { 
-  ChatContainerRoot, 
-  ChatContainerContent, 
-  ChatContainerScrollAnchor 
-} from "@/components/ui/chat-container";
 import { PromptInput, PromptInputTextarea } from "@/components/ui/prompt-input";
 import { Loader } from "@/components/ui/loader";
 import { Markdown } from "@/components/ui/markdown";
 import { ArrowRight, Plus, Search, Globe, Square } from "lucide-react";
-import { cn } from "@/lib/utils";
 
-const ChatInterface = ({ messages, isLoading, isStreaming, sendMessage, onNewChat, stopGenerating }) => {
+const ChatInterface = ({ messages, isLoading, isStreaming, sendMessage, stopGenerating }) => {
   const scrollRef = useRef(null);
   const [inputValue, setInputValue] = useState("");
   const [useWebSearch, setUseWebSearch] = useState(false);
@@ -49,7 +43,7 @@ const ChatInterface = ({ messages, isLoading, isStreaming, sendMessage, onNewCha
                 >
                   <PromptInputTextarea
                     placeholder="Ask anything..."
-                    className="bg-transparent border-none focus-visible:ring-0 text-[#e8e8e6] text-lg resize-none min-h-[60px] placeholder:text-[#8e8e8e] placeholder:font-serif px-2"
+                    className="bg-transparent border-none focus-visible:ring-0 text-[#e8e8e6] text-lg resize-none min-h-15 placeholder:text-[#8e8e8e] placeholder:font-serif px-2"
                   />
                 </PromptInput>
                 <div className="flex justify-between items-center px-2 mt-2">
@@ -136,8 +130,7 @@ const ChatInterface = ({ messages, isLoading, isStreaming, sendMessage, onNewCha
              </div>
           </div>
 
-          {/* Sticky Bottom Input */}
-          <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-[#171615] via-[#171615] to-transparent pt-10 pb-6 px-4">
+          <div className="absolute bottom-0 left-0 w-full bg-linear-to-t from-[#171615] via-[#171615] to-transparent pt-10 pb-6 px-4">
              <div className="max-w-3xl mx-auto w-full">
                 <div className="bg-[#202222] border border-white/10 rounded-[28px] shadow-2xl overflow-hidden focus-within:ring-1 focus-within:ring-white/20 transition-all">
                   <div className="flex flex-col px-4 pt-3 pb-2">
@@ -150,7 +143,7 @@ const ChatInterface = ({ messages, isLoading, isStreaming, sendMessage, onNewCha
                     >
                       <PromptInputTextarea
                         placeholder="Ask a follow-up..."
-                        className="bg-transparent border-none focus-visible:ring-0 text-[#e8e8e6] text-base resize-none min-h-[40px] placeholder:text-[#8e8e8e] px-2"
+                        className="bg-transparent border-none focus-visible:ring-0 text-[#e8e8e6] text-base resize-none min-h-10 placeholder:text-[#8e8e8e] px-2"
                       />
                     </PromptInput>
                     <div className="flex justify-between items-center px-2 mt-1">
