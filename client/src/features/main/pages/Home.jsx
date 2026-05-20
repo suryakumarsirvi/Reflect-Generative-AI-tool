@@ -35,6 +35,7 @@ const Home = () => {
         sendMessage={sendMessage} 
         onNewChat={startNewChat}
         stopGenerating={stopGenerating}
+        chatId={chatId}
       />
     </AppLayout>
   );

@@ -4,7 +4,8 @@ const requiredEnv = [
     'MONGO_URI',
     'SERVER_HOST',
     'SERVER_PORT',
-    'JWT_SECRET'
+    'JWT_SECRET',
+    'PINECONE_API_KEY'
 ];
 
 for (const key of requiredEnv) {
@@ -24,7 +25,9 @@ export const CONFIG = Object.freeze({
     MISTRALAI_API_KEY: process.env.MISTRALAI_API_KEY,
     CLIENT_URL: process.env.CLIENT_URL,
     NODE_ENV: process.env.NODE_ENV,
-    TAVILY_API_KEY: process.env.TAVILY_API_KEY
+    TAVILY_API_KEY: process.env.TAVILY_API_KEY,
+    PINECONE_API_KEY: process.env.PINECONE_API_KEY,
+    PINECONE_INDEX_NAME: process.env.PINECONE_INDEX_NAME || 'perplexity'
 });
 
 

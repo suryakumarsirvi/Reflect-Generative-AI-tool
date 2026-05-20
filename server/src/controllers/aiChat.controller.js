@@ -1,7 +1,9 @@
 import ChatModel from "../models/chat.model.js";
 import MessageModel from "../models/message.model.js";
 import { generateAIStream, generateChatTitle } from "../services/chat.service.js";
+import { upsertDocumentToPinecone } from "../services/ai.service.js";
 import { verifyToken } from "../utils/jwt.js";
+import fs from "fs/promises";
 
 const getUserIdFromRequest = (req) => {
     const authHeader = req.headers.authorization;
@@ -149,7 +151,8 @@ export const AIresponse = async (req, res) => {
             userMessage,
             res,
             previousMessages,
-            useWebSearch
+            useWebSearch,
+            chatId: chat._id
         });
 
         await MessageModel.create({
@@ -168,5 +171,53 @@ export const AIresponse = async (req, res) => {
         console.error("Error in AIresponse controller:", error);
         res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
         res.end();
+    }
+};
+
+export const uploadDocument = async (req, res) => {
+    try {
+        const userId = getUserIdFromRequest(req);
+        if (!userId) {
+            return res.status(401).json({ success: false, message: "Unauthorized" });
+        }
+
+        const { chatId } = req.body;
+        const file = req.file;
+
+        if (!file) {
+            return res.status(400).json({ success: false, message: "No file uploaded" });
+        }
+
+        let targetChatId = chatId;
+
+        // If no chatId, create a placeholder chat or just use a temporary one
+        // For simplicity, we assume the frontend might send an existing chatId or we create one
+        if (!targetChatId) {
+            const chat = await ChatModel.create({
+                userId,
+                title: "Document Analysis",
+                lastMessage: "File uploaded: " + file.originalname
+            });
+            targetChatId = chat._id;
+        }
+
+        await upsertDocumentToPinecone(file.path, targetChatId);
+
+        // Clean up temporary file
+        await fs.unlink(file.path);
+
+        return res.status(200).json({
+            success: true,
+            chatId: targetChatId,
+            message: "File uploaded and processed successfully"
+        });
+
+    } catch (error) {
+        console.error("Error in uploadDocument controller:", error);
+        if (req.file) await fs.unlink(req.file.path).catch(() => {});
+        return res.status(500).json({
+            success: false,
+            message: "Error processing document"
+        });
     }
 };

@@ -1,10 +1,13 @@
-import {Router} from 'express';
-import { AIresponse, getChats, getChatMessages } from '../controllers/aiChat.controller.js';
+import express from 'express';
+import { AIresponse, getChatMessages, getChats, uploadDocument } from '../controllers/aiChat.controller.js';
+import multer from 'multer';
 
-const AIChatRouter = Router();
+const router = express.Router();
+const upload = multer({ dest: 'uploads/' });
 
-AIChatRouter.get('/', getChats);
-AIChatRouter.get('/:chatId/messages', getChatMessages);
-AIChatRouter.post('/', AIresponse);
+router.get('/', getChats);
+router.get('/:chatId/messages', getChatMessages);
+router.post('/', AIresponse);
+router.post('/upload', upload.single('file'), uploadDocument);
 
-export default AIChatRouter;
+export default router;

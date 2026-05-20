@@ -1,9 +1,9 @@
-import { mistralai } from "./ai.service.js";
+import { mistralai, getRelevantContext } from "./ai.service.js";
 import { tavily } from "@tavily/core";
 import { CONFIG } from "../configs/env.config.js";
 
 const SYSTEM_PROMPT = `You are a helpful, precise, and highly intelligent assistant (similar to Perplexity AI). You answer every question in consise and short.
-Answer the user's question clearly and accurately. If provided with web search context, base your answer heavily on that context and synthesize the information. Format your answers beautifully using Markdown. Do not hallucinate information.`;
+Answer the user's question clearly and accurately. If provided with web search or document context, base your answer heavily on that context and synthesize the information. Format your answers beautifully using Markdown. Do not hallucinate information.`;
 
 const normalizeChunkText = (chunk) => {
     if (!chunk) return "";
@@ -28,7 +28,7 @@ const normalizeChunkText = (chunk) => {
     return "";
 };
 
-export const generateAIStream = async ({ userMessage, res, previousMessages = [], useWebSearch = false }) => {
+export const generateAIStream = async ({ userMessage, res, previousMessages = [], useWebSearch = false, chatId }) => {
     
     let searchContext = "";
     
@@ -52,7 +52,19 @@ export const generateAIStream = async ({ userMessage, res, previousMessages = []
         }
     }
 
-    const finalSystemPrompt = searchContext ? `${SYSTEM_PROMPT}\n\n${searchContext}` : SYSTEM_PROMPT;
+    // Retrieve context from Pinecone for RAG
+    let documentContext = "";
+    if (chatId) {
+        documentContext = await getRelevantContext(userMessage, chatId);
+        if (documentContext) {
+            res.write(`data: ${JSON.stringify({ type: 'message', text: '*Analyzing attached documents...*\n\n' })}\n\n`);
+            res.flush?.();
+        }
+    }
+
+    let finalSystemPrompt = SYSTEM_PROMPT;
+    if (searchContext) finalSystemPrompt += `\n\n[WEB SEARCH CONTEXT]\n${searchContext}`;
+    if (documentContext) finalSystemPrompt += `\n\n[DOCUMENT CONTEXT]\n${documentContext}`;
 
     const stream = await mistralai.stream([
         { role: "system", content: finalSystemPrompt },

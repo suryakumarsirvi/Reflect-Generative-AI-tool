@@ -45,7 +45,7 @@ export const useChat = () => {
   }, [dispatch]);
 
   const sendMessage = useCallback(
-    async (message, useWebSearch = false) => {
+    async (message, useWebSearch = false, forcedChatId = null) => {
       if (!message.trim() || isStreaming) return;
 
       try {
@@ -70,11 +70,13 @@ export const useChat = () => {
           headers["Authorization"] = `Bearer ${accessToken}`;
         }
 
+        const targetChatId = forcedChatId || chatId;
+
         const response = await fetch(`${import.meta.env.VITE_API_URL || "/api"}/chat`, {
           method: "POST",
           headers,
           credentials: "include",
-          body: JSON.stringify({ message, chatId: chatId, useWebSearch }),
+          body: JSON.stringify({ message, chatId: targetChatId, useWebSearch }),
           signal: abortControllerRef.current.signal,
         });
 

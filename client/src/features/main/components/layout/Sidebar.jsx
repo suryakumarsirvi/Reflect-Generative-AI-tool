@@ -32,8 +32,8 @@ const Sidebar = ({
       <div className="p-4 flex items-center justify-between h-16">
         {!isCollapsed && (
           <div className="flex items-center gap-2 px-2 font-serif text-xl tracking-tight text-white">
-            <img src="/svg/perplexity.svg" alt="Perplexity Logo" className="w-6 h-6 invert" />
-            <span>Perplexity</span>
+            <img src="./svg/perplexity-color.svg" alt="Perplexity Logo" className="w-full h-8 invert" />
+            <img src="./svg/perplexity-text (1).svg" alt="Perplexity Logo" className="w-full h-6 invert" />
           </div>
         )}
         {isCollapsed && (
