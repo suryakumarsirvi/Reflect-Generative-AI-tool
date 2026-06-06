@@ -7,9 +7,14 @@ import {
   setMessages,
   addMessage,
   updateLastMessage,
+  updateLastMessageThought,
+  setLastMessageSources,
+  setLastMessageVisuals,
+  truncateMessagesAfterIndex,
   setIsLoading,
   setIsStreaming,
   updateChatInList,
+  deleteChatSuccess,
 } from "../store/chat.slice";
 
 export const useChat = () => {
@@ -45,14 +50,22 @@ export const useChat = () => {
   }, [dispatch]);
 
   const sendMessage = useCallback(
-    async (message, useWebSearch = false, forcedChatId = null) => {
+    async (message, useWebSearch = false, forcedChatId = null, truncateAfterMessageId = null) => {
       if (!message.trim() || isStreaming) return;
 
       try {
         dispatch(setIsLoading(true));
         
-        // Ensure user message is appended
-        dispatch(addMessage({ role: "user", content: message }));
+        // If truncateAfterMessageId is provided, we truncate messages after that index
+        if (truncateAfterMessageId) {
+          const index = messages.findIndex((m) => m._id === truncateAfterMessageId || m.id === truncateAfterMessageId);
+          if (index !== -1) {
+            dispatch(truncateMessagesAfterIndex(index + 1));
+          }
+        } else {
+          // Ensure user message is appended
+          dispatch(addMessage({ role: "user", content: message }));
+        }
 
         if (abortControllerRef.current) {
           abortControllerRef.current.abort();
@@ -76,7 +89,7 @@ export const useChat = () => {
           method: "POST",
           headers,
           credentials: "include",
-          body: JSON.stringify({ message, chatId: targetChatId, useWebSearch }),
+          body: JSON.stringify({ message, chatId: targetChatId, useWebSearch, truncateAfterMessageId }),
           signal: abortControllerRef.current.signal,
         });
 
@@ -106,6 +119,12 @@ export const useChat = () => {
                   }
                 } else if (data.type === "message") {
                   dispatch(updateLastMessage(data.text));
+                } else if (data.type === "thought") {
+                  dispatch(updateLastMessageThought(data.text));
+                } else if (data.type === "sources") {
+                  dispatch(setLastMessageSources(data.sources));
+                } else if (data.type === "visuals") {
+                  dispatch(setLastMessageVisuals(data.visuals));
                 } else if (data.error) {
                   throw new Error(data.error);
                 }
@@ -125,7 +144,7 @@ export const useChat = () => {
         dispatch(setIsLoading(false));
       }
     },
-    [chatId, accessToken, dispatch]
+    [chatId, accessToken, dispatch, messages]
   );
 
   const startNewChat = useCallback(() => {
@@ -141,6 +160,17 @@ export const useChat = () => {
     }
   }, [dispatch]);
 
+  const deleteChat = useCallback(async (targetChatId) => {
+    try {
+      const response = await API.delete(`/chat/${targetChatId}`);
+      if (response.data.success) {
+        dispatch(deleteChatSuccess(targetChatId));
+      }
+    } catch (error) {
+      console.error("Error deleting chat:", error);
+    }
+  }, [dispatch]);
+
   return {
     messages,
     isLoading,
@@ -152,5 +182,6 @@ export const useChat = () => {
     fetchMessages,
     startNewChat,
     stopGenerating,
+    deleteChat,
   };
 };

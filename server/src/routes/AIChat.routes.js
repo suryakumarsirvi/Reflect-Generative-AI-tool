@@ -1,5 +1,5 @@
 import express from 'express';
-import { AIresponse, getChatMessages, getChats, uploadDocument } from '../controllers/aiChat.controller.js';
+import { AIresponse, getChatMessages, getChats, uploadDocument, deleteChat } from '../controllers/aiChat.controller.js';
 import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -46,6 +46,7 @@ const upload = multer({
 router.get('/', getChats);
 router.get('/:chatId/messages', getChatMessages);
 router.post('/', AIresponse);
+router.delete('/:chatId', deleteChat);
 
 // Upload endpoint with error handling
 router.post('/upload', (req, res, next) => {

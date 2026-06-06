@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Sidebar from "./Sidebar";
+import GoProModal from "@/components/ui/GoProModal";
 
 const AppLayout = ({ children, chats, currentChatId, onChatSelect, onNewChat }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -17,6 +18,7 @@ const AppLayout = ({ children, chats, currentChatId, onChatSelect, onNewChat }) 
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         {children}
       </main>
+      <GoProModal />
     </div>
   );
 };

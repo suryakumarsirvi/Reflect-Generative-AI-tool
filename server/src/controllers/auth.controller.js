@@ -268,3 +268,74 @@ export const handleGetMe = async (req, res) => {
         data: req.user
     });
 }
+
+export const handleUpdateProfile = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const { fullname, preferences } = req.body;
+
+        const user = await UserRepository.findById(userId);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        if (fullname !== undefined) user.fullname = fullname;
+        if (preferences !== undefined) {
+            if (preferences.tone !== undefined) user.preferences.tone = preferences.tone;
+            if (preferences.interest_tags !== undefined) user.preferences.interest_tags = preferences.interest_tags;
+            if (preferences.search_style !== undefined) user.preferences.search_style = preferences.search_style;
+        }
+
+        await user.save();
+
+        const updatedUser = await UserRepository.findById(userId);
+
+        return res.status(200).json({
+            success: true,
+            message: "Profile updated successfully",
+            data: updatedUser
+        });
+    } catch (error) {
+        logger.error(error);
+        return res.status(500).json({
+            success: false,
+            message: "Error updating profile",
+            error: error.message
+        });
+    }
+};
+
+export const handleSubscribePro = async (req, res) => {
+    try {
+        const userId = req.user._id;
+
+        const user = await UserRepository.findById(userId);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        user.tier = 'pro';
+        await user.save();
+
+        const updatedUser = await UserRepository.findById(userId);
+
+        return res.status(200).json({
+            success: true,
+            message: "Successfully subscribed to Pro tier",
+            data: updatedUser
+        });
+    } catch (error) {
+        logger.error(error);
+        return res.status(500).json({
+            success: false,
+            message: "Error processing subscription",
+            error: error.message
+        });
+    }
+};

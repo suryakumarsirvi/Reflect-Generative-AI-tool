@@ -17,6 +17,18 @@ const MessageSchema = new mongoose.Schema({
     content: {
         type: String,
         required: true
+    },
+    sources: {
+        type: Array,
+        default: []
+    },
+    visuals: {
+        type: Array,
+        default: []
+    },
+    thoughtTrace: {
+        type: String,
+        default: ""
     }
 
 }, { timestamps: true });

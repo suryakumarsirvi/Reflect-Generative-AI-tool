@@ -25,6 +25,31 @@ const UserSchema = new Schema({
     refreshToken:{
         type: String,
         default: null
+    },
+    tier: {
+        type: String,
+        enum: ['free', 'pro'],
+        default: 'free'
+    },
+    preferences: {
+        tone: {
+            type: String,
+            enum: ['neutral', 'technical', 'simple'],
+            default: 'neutral'
+        },
+        interest_tags: {
+            type: [String],
+            default: ['AI', 'backend', 'finance']
+        },
+        search_style: {
+            type: String,
+            enum: ['fast', 'deep'],
+            default: 'fast'
+        }
+    },
+    history_summary: {
+        type: [String],
+        default: []
     }
 }, {
     timestamps: true

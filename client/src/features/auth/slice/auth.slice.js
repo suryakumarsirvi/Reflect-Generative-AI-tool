@@ -26,8 +26,28 @@ const AuthSlice = createSlice({
     setLoading: (state, action) => {
       state.loading = action.payload;
     },
+
+    updateUserProfile: (state, action) => {
+      if (state.user) {
+        // Merge top level user attributes (like fullname) and deep preferences
+        state.user = {
+          ...state.user,
+          ...action.payload,
+          preferences: {
+            ...state.user.preferences,
+            ...(action.payload.preferences || {})
+          }
+        };
+      }
+    },
+
+    setUserTier: (state, action) => {
+      if (state.user) {
+        state.user.tier = action.payload;
+      }
+    }
   },
 });
 
-export const { setUser, clearUser, setLoading } = AuthSlice.actions;
+export const { setUser, clearUser, setLoading, updateUserProfile, setUserTier } = AuthSlice.actions;
 export default AuthSlice.reducer;

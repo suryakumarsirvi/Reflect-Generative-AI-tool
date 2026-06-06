@@ -3,6 +3,7 @@ import MessageModel from "../models/message.model.js";
 import { generateAIStream, generateChatTitle } from "../services/chat.service.js";
 import { upsertDocumentToPinecone } from "../services/ai.service.js";
 import { verifyToken } from "../utils/jwt.js";
+import * as UserRepository from "../repository/user.repository.js";
 import fs from "fs/promises";
 
 const getUserIdFromRequest = (req) => {
@@ -99,6 +100,14 @@ export const AIresponse = async (req, res) => {
             });
         }
 
+        const user = await UserRepository.findById(userId);
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: 'Unauthorized'
+            });
+        }
+
         if (!userMessage?.trim()) {
             return res.status(400).json({
                 success: false,
@@ -129,6 +138,18 @@ export const AIresponse = async (req, res) => {
             if (!chat) {
                 throw new Error("Chat not found");
             }
+
+            // Truncate messages if editing or regenerating
+            const { truncateAfterMessageId } = req.body;
+            if (truncateAfterMessageId) {
+                const targetMsg = await MessageModel.findOne({ _id: truncateAfterMessageId, chatId: chat._id });
+                if (targetMsg) {
+                    await MessageModel.deleteMany({
+                        chatId: chat._id,
+                        createdAt: { $gt: targetMsg.createdAt }
+                    });
+                }
+            }
         }
 
         const previousMessages = await MessageModel
@@ -147,18 +168,22 @@ export const AIresponse = async (req, res) => {
 
         res.write(`data: ${JSON.stringify({ type: 'meta', chat: { _id: chat._id, title: chat.title, lastMessage: chat.lastMessage } })}\n\n`);
 
-        const aiResponse = await generateAIStream({
+        const { aiResponse, sources, visuals, thoughtTrace } = await generateAIStream({
             userMessage,
             res,
             previousMessages,
             useWebSearch,
-            chatId: chat._id
+            chatId: chat._id,
+            user
         });
 
         await MessageModel.create({
             chatId: chat._id,
             role: "assistant",
-            content: aiResponse
+            content: aiResponse,
+            sources: sources || [],
+            visuals: visuals || [],
+            thoughtTrace: thoughtTrace || ""
         });
 
         await ChatModel.findByIdAndUpdate(chat._id, {
@@ -337,6 +362,42 @@ export const uploadDocument = async (req, res) => {
             error: error.message,
             requestId,
             details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
+    }
+};
+
+export const deleteChat = async (req, res) => {
+    try {
+        const userId = getUserIdFromRequest(req);
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: 'Unauthorized'
+            });
+        }
+
+        const { chatId } = req.params;
+        const chat = await ChatModel.findOneAndDelete({ _id: chatId, userId });
+
+        if (!chat) {
+            return res.status(404).json({
+                success: false,
+                message: 'Chat not found or unauthorized'
+            });
+        }
+
+        // Delete all messages in the chat
+        await MessageModel.deleteMany({ chatId });
+
+        return res.status(200).json({
+            success: true,
+            message: 'Chat and associated messages deleted successfully'
+        });
+    } catch (error) {
+        console.error('Error deleting chat:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Unable to delete chat'
         });
     }
 };

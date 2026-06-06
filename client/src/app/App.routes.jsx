@@ -4,6 +4,8 @@ import PrivateRoutes from '../guards/PrivateRoutes'
 import AuthLayout from '../features/auth/pages/AuthLayout'
 import Home from '../features/main/pages/Home'
 import Profile from '../features/main/pages/Profile'
+import Library from '../features/main/pages/Library'
+import Discover from '../features/main/pages/Discover'
 import NotFound from '../features/main/pages/NotFound'
 import ForgotPassword from '../features/auth/pages/ForgotPassword'
 import GoogleCallback from '../features/auth/pages/GoogleCallback'
@@ -53,6 +55,20 @@ const Router = createBrowserRouter([
         element: 
         <PrivateRoutes>
             <Profile/>
+        </PrivateRoutes>
+    },
+    {
+        path: '/library',
+        element: 
+        <PrivateRoutes>
+            <Library/>
+        </PrivateRoutes>
+    },
+    {
+        path: '/discover',
+        element: 
+        <PrivateRoutes>
+            <Discover/>
         </PrivateRoutes>
     },
     {

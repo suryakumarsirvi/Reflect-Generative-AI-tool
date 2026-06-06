@@ -7,9 +7,12 @@ import {
   Compass,
   User,
   PanelLeftClose,
-  PanelLeftOpen
+  PanelLeftOpen,
+  Sparkles
 } from "lucide-react";
 import { useNavigate } from "react-router";
+import { useSelector, useDispatch } from "react-redux";
+import { setGoProModalOpen } from "../../store/chat.slice";
 
 const Sidebar = ({ 
   isCollapsed, 
@@ -20,6 +23,9 @@ const Sidebar = ({
   currentChatId 
 }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+  const isPro = user?.tier === 'pro';
 
   return (
     <div
@@ -64,11 +70,13 @@ const Sidebar = ({
           icon={<Compass size={18} strokeWidth={2} />} 
           label="Discover" 
           isCollapsed={isCollapsed} 
+          onClick={() => navigate('/discover')}
         />
         <SidebarItem 
           icon={<Library size={18} strokeWidth={2} />} 
           label="Library" 
           isCollapsed={isCollapsed} 
+          onClick={() => navigate('/library')}
         />
         
         {!isCollapsed && (
@@ -94,10 +102,36 @@ const Sidebar = ({
       </nav>
 
       {/* Bottom Actions */}
-      <div className="p-3 border-t border-white/5 space-y-1">
+      <div className="p-3 border-t border-white/5 space-y-1.5">
+        {!isPro && (
+          <button
+            onClick={() => dispatch(setGoProModalOpen(true))}
+            className={cn(
+              "w-full flex items-center gap-3 px-3 py-2 bg-gradient-to-r from-amber-500/20 to-yellow-500/10 hover:from-amber-500/30 hover:to-yellow-500/20 text-amber-300 hover:text-white rounded-md transition-all duration-300 border border-amber-500/30 hover:border-amber-500/50 cursor-pointer shadow-[0_0_15px_rgba(245,158,11,0.08)]",
+              isCollapsed && "justify-center px-0 h-10 w-10 mx-auto"
+            )}
+            title="Upgrade to Pro"
+          >
+            <div className="shrink-0 flex items-center justify-center">
+              <Sparkles size={16} className="text-amber-400 animate-pulse" />
+            </div>
+            {!isCollapsed && (
+              <span className="text-xs font-bold uppercase tracking-wider">
+                Go Pro
+              </span>
+            )}
+          </button>
+        )}
         <SidebarItem 
-          icon={<User size={18} strokeWidth={2} />} 
-          label="Profile" 
+          icon={
+            <div className="relative">
+              <User size={18} strokeWidth={2} />
+              {isPro && (
+                <span className="absolute -top-1 -right-1 w-2 h-2 bg-amber-500 rounded-full shadow-[0_0_8px_#f59e0b]"></span>
+              )}
+            </div>
+          } 
+          label={isPro ? "Profile (Pro)" : "Profile"} 
           isCollapsed={isCollapsed} 
           onClick={() => navigate('/profile')}
         />
