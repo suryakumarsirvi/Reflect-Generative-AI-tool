@@ -175,49 +175,168 @@ export const AIresponse = async (req, res) => {
 };
 
 export const uploadDocument = async (req, res) => {
+    const startTime = Date.now();
+    const requestId = `upload-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+    
     try {
+        console.log(`[${requestId}] Upload started`);
+        
         const userId = getUserIdFromRequest(req);
         if (!userId) {
+            console.log(`[${requestId}] Unauthorized: no user ID`);
             return res.status(401).json({ success: false, message: "Unauthorized" });
         }
+        console.log(`[${requestId}] User ID: ${userId}`);
 
         const { chatId } = req.body;
         const file = req.file;
 
+        // Validate file exists
         if (!file) {
-            return res.status(400).json({ success: false, message: "No file uploaded" });
+            console.log(`[${requestId}] No file provided`);
+            return res.status(400).json({ 
+                success: false, 
+                message: "No file uploaded",
+                error: "File is required"
+            });
+        }
+
+        console.log(`[${requestId}] File received: ${file.originalname} (${file.size} bytes, type: ${file.mimetype}, path: ${file.path})`);
+
+        // Validate file size (additional check)
+        if (file.size > 52428800) {
+            await fs.unlink(file.path).catch(() => {});
+            console.log(`[${requestId}] File exceeds size limit: ${file.size}`);
+            return res.status(400).json({ 
+                success: false, 
+                message: "File size exceeds 50MB limit",
+                error: `File size: ${(file.size / 1024 / 1024).toFixed(2)}MB`
+            });
         }
 
         let targetChatId = chatId;
 
-        // If no chatId, create a placeholder chat or just use a temporary one
-        // For simplicity, we assume the frontend might send an existing chatId or we create one
+        // If no chatId, create a placeholder chat
         if (!targetChatId) {
-            const chat = await ChatModel.create({
-                userId,
-                title: "Document Analysis",
-                lastMessage: "File uploaded: " + file.originalname
-            });
-            targetChatId = chat._id;
+            console.log(`[${requestId}] Creating new chat for document: ${file.originalname}`);
+            try {
+                const chat = await ChatModel.create({
+                    userId,
+                    title: file.originalname.replace('.pdf', '') || "Document Analysis",
+                    lastMessage: "File uploaded: " + file.originalname
+                });
+                targetChatId = chat._id;
+                console.log(`[${requestId}] New chat created: ${targetChatId}`);
+            } catch (chatError) {
+                console.error(`[${requestId}] Error creating chat:`, chatError);
+                await fs.unlink(file.path).catch(() => {});
+                return res.status(500).json({
+                    success: false,
+                    message: "Error creating chat for document",
+                    error: chatError.message
+                });
+            }
+        } else {
+            // Verify the chat belongs to the user
+            console.log(`[${requestId}] Verifying chat: ${chatId}`);
+            try {
+                const chat = await ChatModel.findOne({ _id: chatId, userId });
+                if (!chat) {
+                    await fs.unlink(file.path).catch(() => {});
+                    console.log(`[${requestId}] Chat not found or unauthorized`);
+                    return res.status(403).json({ 
+                        success: false, 
+                        message: "Chat not found or unauthorized",
+                        error: "You don't have access to this chat"
+                    });
+                }
+                console.log(`[${requestId}] Chat verified: ${chatId}`);
+            } catch (chatVerifyError) {
+                console.error(`[${requestId}] Error verifying chat:`, chatVerifyError);
+                await fs.unlink(file.path).catch(() => {});
+                return res.status(500).json({
+                    success: false,
+                    message: "Error verifying chat",
+                    error: chatVerifyError.message
+                });
+            }
         }
 
-        await upsertDocumentToPinecone(file.path, targetChatId);
+        try {
+            console.log(`[${requestId}] Starting PDF processing...`);
+            const processingStartTime = Date.now();
+            await upsertDocumentToPinecone(file.path, targetChatId);
+            const processingTime = Date.now() - processingStartTime;
+            console.log(`[${requestId}] PDF processing completed in ${processingTime}ms`);
+        } catch (processingError) {
+            console.error(`[${requestId}] Error processing PDF:`, processingError);
+            await fs.unlink(file.path).catch(() => {});
+            
+            // Provide specific error messages based on the error type
+            let errorMessage = "Error processing document";
+            let statusCode = 500;
+            
+            if (processingError.message?.includes("API")) {
+                errorMessage = "API configuration error. Please check server configuration.";
+                statusCode = 503;
+            } else if (processingError.message?.includes("ENOENT") || processingError.message?.includes("cannot find")) {
+                errorMessage = "Failed to read PDF file. The file may be corrupted.";
+                statusCode = 400;
+            } else if (processingError.message?.includes("No text")) {
+                errorMessage = "No text could be extracted from the PDF.";
+                statusCode = 400;
+            } else if (processingError.message?.includes("timeout")) {
+                errorMessage = "PDF processing timed out. The file may be too large.";
+                statusCode = 408;
+            }
+            
+            console.log(`[${requestId}] Returning error: ${statusCode} - ${errorMessage}`);
+            return res.status(statusCode).json({
+                success: false,
+                message: errorMessage,
+                error: processingError.message,
+                details: process.env.NODE_ENV === 'development' ? processingError.stack : undefined
+            });
+        }
 
         // Clean up temporary file
-        await fs.unlink(file.path);
+        try {
+            await fs.unlink(file.path);
+            console.log(`[${requestId}] Temp file cleaned up`);
+        } catch (unlinkError) {
+            console.warn(`[${requestId}] Warning: Could not clean up temp file:`, unlinkError.message);
+        }
+
+        const totalTime = Date.now() - startTime;
+        console.log(`[${requestId}] Upload completed successfully in ${totalTime}ms`);
 
         return res.status(200).json({
             success: true,
             chatId: targetChatId,
-            message: "File uploaded and processed successfully"
+            message: "File uploaded and processed successfully",
+            fileName: file.originalname,
+            fileSize: file.size
         });
 
     } catch (error) {
-        console.error("Error in uploadDocument controller:", error);
-        if (req.file) await fs.unlink(req.file.path).catch(() => {});
+        console.error(`[${requestId}] Unexpected error:`, error);
+        
+        // Clean up file if it exists
+        if (req.file) {
+            await fs.unlink(req.file.path).catch((e) => {
+                console.warn(`[${requestId}] Warning: Could not clean up file:`, e.message);
+            });
+        }
+        
+        const totalTime = Date.now() - startTime;
+        console.error(`[${requestId}] Upload failed after ${totalTime}ms`);
+        
         return res.status(500).json({
             success: false,
-            message: "Error processing document"
+            message: "Unexpected error during file upload",
+            error: error.message,
+            requestId,
+            details: process.env.NODE_ENV === 'development' ? error.stack : undefined
         });
     }
 };

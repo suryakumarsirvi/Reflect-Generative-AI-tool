@@ -70,65 +70,86 @@ export const upsertDocumentToPinecone = async (filePath, chatId) => {
             vectors = await embeddings.embedDocuments(texts);
             console.log(`Generated ${vectors.length} vectors. Each vector dimension: ${vectors[0]?.length}`);
         } catch (embedError) {
-            console.error("Error generating embeddings:", embedError);
-            throw embedError;
+            console.error("Error generating embeddings:", embedError.message);
+            throw new Error(`Failed to generate embeddings: ${embedError.message}`);
         }
 
         const index = getIndex();
-        console.log(`Preparing records for Pinecone upsertion...`);
+        console.log(`Preparing ${vectors.length} records for Pinecone...`);
 
-        console.log(`Preparing records for Pinecone upsertion...`);
+        // Create records with proper structure for Pinecone SDK
+        const records = vectors.map((vector, i) => {
+            const id = `${chatId}-${uuidv4()}`;
+            return {
+                id,
+                values: vector,
+                metadata: {
+                    text: splitDocs[i].pageContent,
+                    chatId: chatId.toString(),
+                    source: splitDocs[i].metadata?.source || 'pdf',
+                    page: splitDocs[i].metadata?.loc?.pageNumber || 0
+                }
+            };
+        });
 
-        const records = vectors.map((vector, i) => ({
-            id: uuidv4(),
-            values: vector,
-            metadata: {
-                ...splitDocs[i].metadata,
-                text: splitDocs[i].pageContent,
-                chatId: chatId.toString()
-            }
-        }));
-
-        console.log(`Upserting ${records.length} records. Array.isArray: ${Array.isArray(records)}`);
-        console.log(`First record ID: ${records[0]?.id}`);
-        console.log(`First record values length: ${records[0]?.values?.length}`);
-
-        if (!records || records.length === 0) {
-            throw new Error("Records array is empty before upsert.");
-        }
+        console.log(`Upserting ${records.length} records to Pinecone index "${CONFIG.PINECONE_INDEX_NAME}"...`);
+        console.log(`First record ID: ${records[0]?.id}, Vector dim: ${records[0]?.values?.length}`);
 
         try {
-            // Direct upsert on index
-            console.log("Attempting upsert with records as array...");
-            await index.upsert(records);
-            console.log(`Successfully upserted ${records.length} documents to Pinecone (direct array)`);
-        } catch (directError) {
-            console.warn("Direct array upsert failed:", directError.message);
+            // Upsert directly to index without namespace
+            const response = await index.upsert(records);
+            console.log(`Successfully upserted ${records.length} records to Pinecone`, {
+                upsertedCount: records.length,
+                response: response
+            });
+            return true;
+        } catch (upsertError) {
+            console.error("Direct upsert failed:", upsertError.message);
             
+            // Try with namespace as fallback
             try {
-                console.log("Attempting upsert with { vectors: records } format...");
-                await index.upsert({ vectors: records });
-                console.log(`Successfully upserted ${records.length} documents to Pinecone (vectors object)`);
-            } catch (objError) {
-                console.warn("Object upsert failed:", objError.message);
+                console.log("Attempting upsert with namespace 'documents'...");
+                const ns = index.namespace('documents');
+                const response = await ns.upsert(records);
+                console.log(`Successfully upserted ${records.length} records to Pinecone (with namespace)`, {
+                    upsertedCount: records.length,
+                    response: response
+                });
+                return true;
+            } catch (nsError) {
+                console.error("Namespace upsert also failed:", nsError.message);
                 
-                try {
-                    console.log("Attempting upsert with namespace and direct array...");
-                    await index.namespace("documents").upsert(records);
-                    console.log(`Successfully upserted ${records.length} documents to Pinecone (namespace array)`);
-                } catch (nsError) {
-                    console.warn("Namespace array upsert failed:", nsError.message);
+                // Last resort: try smaller batches
+                if (records.length > 1) {
+                    console.log(`Attempting batch upsert (${records.length} records in smaller chunks)...`);
+                    const batchSize = 10;
+                    let successCount = 0;
                     
-                    console.log("Attempting upsert with namespace and { vectors: records }...");
-                    await index.namespace("documents").upsert({ vectors: records });
-                    console.log(`Successfully upserted ${records.length} documents to Pinecone (namespace vectors object)`);
+                    for (let i = 0; i < records.length; i += batchSize) {
+                        const batch = records.slice(i, i + batchSize);
+                        const batchNum = Math.floor(i / batchSize) + 1;
+                        
+                        try {
+                            console.log(`Upserting batch ${batchNum}/${Math.ceil(records.length / batchSize)} (${batch.length} records)...`);
+                            await index.upsert(batch);
+                            successCount += batch.length;
+                            console.log(`Batch ${batchNum} succeeded`);
+                        } catch (batchError) {
+                            console.error(`Batch ${batchNum} failed:`, batchError.message);
+                            throw batchError;
+                        }
+                    }
+                    
+                    console.log(`Successfully upserted all ${successCount} records to Pinecone in batches`);
+                    return true;
                 }
+                
+                throw nsError;
             }
         }
-
-        return true;
     } catch (error) {
-        console.error("Error in upsertDocumentToPinecone final catch:", error);
+        console.error("Error in upsertDocumentToPinecone:", error.message);
+        console.error("Stack trace:", error.stack);
         throw error;
     }
 };

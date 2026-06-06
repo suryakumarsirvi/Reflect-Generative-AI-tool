@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { PromptInput, PromptInputTextarea } from "@/components/ui/prompt-input";
 import { Loader } from "@/components/ui/loader";
 import { Markdown } from "@/components/ui/markdown";
-import { ArrowRight, Plus, Search, Globe, Square, FileText, X } from "lucide-react";
+import { ArrowRight, Plus, Search, Globe, Square, FileText, X, AlertCircle } from "lucide-react";
 import { API } from "@/api/axios.api";
 
 const ChatInterface = ({ messages, isLoading, isStreaming, sendMessage, stopGenerating, chatId: currentChatId }) => {
@@ -12,6 +12,7 @@ const ChatInterface = ({ messages, isLoading, isStreaming, sendMessage, stopGene
   const [useWebSearch, setUseWebSearch] = useState(false);
   const [attachedFile, setAttachedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
   const [activeChatId, setActiveChatId] = useState(currentChatId);
 
   useEffect(() => {
@@ -30,6 +31,7 @@ const ChatInterface = ({ messages, isLoading, isStreaming, sendMessage, stopGene
 
       if (attachedFile && !isUploading) {
         setIsUploading(true);
+        setUploadError(null);
         try {
           const formData = new FormData();
           formData.append("file", attachedFile);
@@ -42,13 +44,18 @@ const ChatInterface = ({ messages, isLoading, isStreaming, sendMessage, stopGene
           if (response.data.success) {
             finalChatId = response.data.chatId;
             setActiveChatId(finalChatId);
+            setAttachedFile(null);
+          } else {
+            setUploadError(response.data.message || "Upload failed");
+            setIsUploading(false);
+            return;
           }
         } catch (error) {
           console.error("Upload failed:", error);
-          // You might want to show an error message to the user here
-        } finally {
+          const errorMessage = error.response?.data?.message || error.message || "Failed to upload file. Please try again.";
+          setUploadError(errorMessage);
           setIsUploading(false);
-          setAttachedFile(null);
+          return;
         }
       }
 
@@ -59,17 +66,51 @@ const ChatInterface = ({ messages, isLoading, isStreaming, sendMessage, stopGene
 
   const onFileChange = (e) => {
     const file = e.target.files[0];
-    if (file && file.type === "application/pdf") {
-      setAttachedFile(file);
-    } else {
-      alert("Please upload a PDF file.");
+    setUploadError(null);
+    
+    if (!file) {
+      return;
     }
+
+    // Validate file type
+    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith('.pdf')) {
+      setUploadError("Only PDF files are supported.");
+      return;
+    }
+
+    // Validate file size (50MB)
+    const maxSize = 52428800;
+    if (file.size > maxSize) {
+      setUploadError(`File size (${(file.size / 1024 / 1024).toFixed(2)}MB) exceeds the 50MB limit.`);
+      return;
+    }
+
+    setAttachedFile(file);
   };
 
   const removeFile = () => {
     setAttachedFile(null);
+    setUploadError(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
+
+  const renderErrorMessage = () => (
+    uploadError && (
+      <div className="flex items-start gap-3 bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3 mb-3 animate-in fade-in slide-in-from-bottom-2">
+        <AlertCircle size={18} className="text-red-400 mt-0.5 flex-shrink-0" />
+        <div className="flex flex-col gap-1">
+          <span className="text-sm font-medium text-red-400">Upload failed</span>
+          <span className="text-xs text-red-400/80">{uploadError}</span>
+        </div>
+        <button
+          onClick={() => setUploadError(null)}
+          className="ml-auto text-red-400/60 hover:text-red-400 transition-colors"
+        >
+          <X size={16} />
+        </button>
+      </div>
+    )
+  );
 
   const renderFilePreview = () => (
     attachedFile && (
@@ -115,6 +156,7 @@ const ChatInterface = ({ messages, isLoading, isStreaming, sendMessage, stopGene
             <div className="absolute inset-0 bg-[#2f3131] rounded-full blur-xl opacity-0 group-focus-within:opacity-50 transition-opacity duration-500"></div>
             <div className="relative bg-[#202222] border border-white/10 rounded-[32px] shadow-2xl overflow-hidden focus-within:ring-1 focus-within:ring-white/20 transition-all">
               <div className="flex flex-col px-4 pt-4 pb-3">
+                {renderErrorMessage()}
                 {renderFilePreview()}
                 <PromptInput
                   value={inputValue}
@@ -219,6 +261,7 @@ const ChatInterface = ({ messages, isLoading, isStreaming, sendMessage, stopGene
              <div className="max-w-3xl mx-auto w-full">
                 <div className="bg-[#202222] border border-white/10 rounded-[28px] shadow-2xl overflow-hidden focus-within:ring-1 focus-within:ring-white/20 transition-all">
                   <div className="flex flex-col px-4 pt-3 pb-2">
+                    {renderErrorMessage()}
                     {renderFilePreview()}
                     <PromptInput
                       value={inputValue}
