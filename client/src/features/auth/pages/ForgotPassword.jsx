@@ -7,12 +7,11 @@ const ForgotPassword = () => {
   return (
     <div className="h-screen w-full flex flex-col items-center justify-center bg-[#171615] text-white">
       <div className="flex flex-col items-center max-w-sm w-full p-6">
-         <div className="mb-8 flex items-center gap-4">
-        <img src="/Primary w. Off-White@2x.png" alt="Logo" className="h-18" />
-      </div>
-        
-      
-        
+        <div className="mb-8 flex items-center">
+          <img src="./image/without.png" alt="Logo" className="h-12" />
+          <h1 className='text-4xl font-semibold'>Discovery</h1>
+        </div>
+
         <h1 className="text-2xl font-serif mb-2">Reset Password</h1>
         <p className="text-neutral-400 text-sm text-center mb-8">
           This feature is currently under development. Please check back later.

@@ -1,8 +1,8 @@
 import React from "react";
 import { cn } from "@/lib/utils";
-import { 
-  Plus, 
-  Search, 
+import {
+  Plus,
+  Search,
   Library,
   Compass,
   User,
@@ -14,13 +14,13 @@ import { useNavigate } from "react-router";
 import { useSelector, useDispatch } from "react-redux";
 import { setGoProModalOpen } from "../../store/chat.slice";
 
-const Sidebar = ({ 
-  isCollapsed, 
-  toggleCollapse, 
-  chats = [], 
-  onChatSelect, 
+const Sidebar = ({
+  isCollapsed,
+  toggleCollapse,
+  chats = [],
+  onChatSelect,
   onNewChat,
-  currentChatId 
+  currentChatId
 }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -38,13 +38,13 @@ const Sidebar = ({
       <div className="p-4 flex items-center justify-between h-16">
         {!isCollapsed && (
           <div className="flex items-center gap-2 px-2 font-serif text-xl tracking-tight text-white">
-            <img src="./svg/perplexity-color.svg" alt="Perplexity Logo" className="w-full h-8 invert" />
-            <img src="./svg/perplexity-text (1).svg" alt="Perplexity Logo" className="w-full h-6 invert" />
+            <img src="./image/without.png" alt="Perplexity Logo" className="w-full h-8" />
+            <h1 className="text-2xl font-semibold">Discovery</h1>
           </div>
         )}
         {isCollapsed && (
           <div className="w-full flex justify-center">
-             <img src="/svg/perplexity.svg" alt="Perplexity Logo" className="w-6 h-6 invert" />
+            <img src="./image/without.png" alt="Perplexity Logo" className="w-full h-12 object-contain" />
           </div>
         )}
       </div>
@@ -53,7 +53,7 @@ const Sidebar = ({
         <button
           onClick={onNewChat}
           className={cn(
-            "w-full flex items-center justify-between gap-2 px-3 py-2 bg-[#2f3131] hover:bg-[#3f4141] text-[#e8e8e6] rounded-full transition-colors group",
+            "w-full flex items-center justify-between gap-2 px-3 py-2 bg-[#2f3131] hover:bg-[#3f4141] text-[#e8e8e6] rounded transition-colors group",
             isCollapsed && "justify-center px-0 h-10 w-10 mx-auto"
           )}
         >
@@ -66,19 +66,19 @@ const Sidebar = ({
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto px-3 no-scrollar py-2 space-y-1 scrollbar-hide">
-        <SidebarItem 
-          icon={<Compass size={18} strokeWidth={2} />} 
-          label="Discover" 
-          isCollapsed={isCollapsed} 
+        <SidebarItem
+          icon={<Compass size={18} strokeWidth={2} />}
+          label="Discover"
+          isCollapsed={isCollapsed}
           onClick={() => navigate('/discover')}
         />
-        <SidebarItem 
-          icon={<Library size={18} strokeWidth={2} />} 
-          label="Library" 
-          isCollapsed={isCollapsed} 
+        <SidebarItem
+          icon={<Library size={18} strokeWidth={2} />}
+          label="Library"
+          isCollapsed={isCollapsed}
           onClick={() => navigate('/library')}
         />
-        
+
         {!isCollapsed && (
           <div className="mt-8 px-2">
             <h3 className="text-xs font-semibold text-[#8e8e8e] uppercase tracking-wider mb-2">
@@ -122,7 +122,7 @@ const Sidebar = ({
             )}
           </button>
         )}
-        <SidebarItem 
+        <SidebarItem
           icon={
             <div className="relative">
               <User size={18} strokeWidth={2} />
@@ -130,9 +130,9 @@ const Sidebar = ({
                 <span className="absolute -top-1 -right-1 w-2 h-2 bg-amber-500 rounded-full shadow-[0_0_8px_#f59e0b]"></span>
               )}
             </div>
-          } 
-          label={isPro ? "Profile (Pro)" : "Profile"} 
-          isCollapsed={isCollapsed} 
+          }
+          label={isPro ? "Profile (Pro)" : "Profile"}
+          isCollapsed={isCollapsed}
           onClick={() => navigate('/profile')}
         />
         <button
@@ -160,8 +160,8 @@ const SidebarItem = ({ icon, label, isCollapsed, isActive, onClick }) => {
       onClick={onClick}
       className={cn(
         "flex items-center gap-3 px-3 py-2.5 rounded-md cursor-pointer transition-colors group",
-        isActive 
-          ? "bg-[#2f3131] text-white" 
+        isActive
+          ? "bg-[#2f3131] text-white"
           : "text-[#8e8e8e] hover:bg-white/5 hover:text-[#e8e8e6]",
         isCollapsed && "justify-center px-0 py-3"
       )}

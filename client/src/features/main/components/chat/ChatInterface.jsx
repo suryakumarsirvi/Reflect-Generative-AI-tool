@@ -4,23 +4,23 @@ import { Loader } from "@/components/ui/loader";
 import { Markdown } from "@/components/ui/markdown";
 import { useSelector, useDispatch } from "react-redux";
 import { setGoProModalOpen } from "../../store/chat.slice";
-import { 
-  ArrowRight, 
-  Plus, 
-  Search, 
-  Globe, 
-  Square, 
-  FileText, 
-  X, 
-  AlertCircle, 
-  Sparkles, 
-  Terminal, 
-  Copy, 
-  Check, 
-  RefreshCw, 
-  Edit3, 
-  ChevronDown, 
-  ChevronUp, 
+import {
+  ArrowRight,
+  Plus,
+  Search,
+  Globe,
+  Square,
+  FileText,
+  X,
+  AlertCircle,
+  Sparkles,
+  Terminal,
+  Copy,
+  Check,
+  RefreshCw,
+  Edit3,
+  ChevronDown,
+  ChevronUp,
   Info,
   Clock,
   ExternalLink,
@@ -31,12 +31,12 @@ import { API } from "@/api/axios.api";
 const ChatInterface = ({ messages, isLoading, isStreaming, sendMessage, stopGenerating, chatId: currentChatId }) => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  
+
   const scrollRef = useRef(null);
   const fileInputRef = useRef(null);
   const [inputValue, setInputValue] = useState("");
   const [useWebSearch, setUseWebSearch] = useState(true);
-  
+
   // Custom toggles
   const [deepResearch, setDeepResearch] = useState(false);
   const [engineerMode, setEngineerMode] = useState(false);
@@ -114,7 +114,7 @@ const ChatInterface = ({ messages, isLoading, isStreaming, sendMessage, stopGene
   const onFileChange = (e) => {
     const file = e.target.files[0];
     setUploadError(null);
-    
+
     if (!file) return;
 
     if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith('.pdf')) {
@@ -150,12 +150,12 @@ const ChatInterface = ({ messages, isLoading, isStreaming, sendMessage, stopGene
 
   const handleSaveEdit = (msgId) => {
     if (!editValue.trim() || isStreaming) return;
-    
+
     const targetMsgIndex = messages.findIndex(m => m._id === msgId || m.id === msgId);
     if (targetMsgIndex === -1) return;
 
     const precedingUserMessage = messages[targetMsgIndex];
-    
+
     sendMessage(editValue, useWebSearch, activeChatId, precedingUserMessage._id || precedingUserMessage.id);
     setEditingMessageId(null);
     setEditValue("");
@@ -212,7 +212,7 @@ const ChatInterface = ({ messages, isLoading, isStreaming, sendMessage, stopGene
             {(attachedFile.size / 1024).toFixed(1)} KB
           </span>
         </div>
-        <button 
+        <button
           onClick={removeFile}
           className="p-1 hover:bg-white/5 rounded-full transition-colors text-neutral-500 hover:text-white cursor-pointer"
         >
@@ -255,12 +255,12 @@ const ChatInterface = ({ messages, isLoading, isStreaming, sendMessage, stopGene
         }
       `}</style>
 
-      <input 
-        type="file" 
-        ref={fileInputRef} 
-        onChange={onFileChange} 
-        accept=".pdf" 
-        className="hidden" 
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={onFileChange}
+        accept=".pdf"
+        className="hidden"
       />
 
       {messages.length === 0 ? (
@@ -268,7 +268,7 @@ const ChatInterface = ({ messages, isLoading, isStreaming, sendMessage, stopGene
           <h1 className="text-3xl sm:text-4xl font-serif tracking-tight text-white mb-8 text-center animate-in fade-in slide-in-from-top-6 duration-500">
             Where knowledge begins
           </h1>
-          
+
           <div className="w-full relative group animate-in fade-in slide-in-from-bottom-6 duration-500">
             <div className="absolute inset-0 bg-neutral-900 rounded-full blur-xl opacity-0 group-focus-within:opacity-40 transition-opacity duration-500"></div>
             <div className="relative bg-[#141414] border border-[#262626] rounded-[24px] shadow-2xl overflow-hidden focus-within:border-neutral-700 transition-all">
@@ -290,48 +290,45 @@ const ChatInterface = ({ messages, isLoading, isStreaming, sendMessage, stopGene
                 <div className="flex flex-wrap gap-2 justify-between items-center px-2 mt-2 border-t border-[#262626] pt-3">
                   <div className="flex flex-wrap items-center gap-2">
                     {/* Pro Search Toggle */}
-                    <button 
+                    <button
                       type="button"
                       onClick={() => setUseWebSearch(!useWebSearch)}
-                      className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all cursor-pointer font-mono ${
-                        useWebSearch 
-                          ? "text-white bg-white/10 border border-white/15" 
+                      className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all cursor-pointer font-mono ${useWebSearch
+                          ? "text-white bg-white/10 border border-white/15"
                           : "text-neutral-500 bg-transparent hover:text-white"
-                      }`}
+                        }`}
                     >
                       <Globe size={13} className={useWebSearch ? "text-neutral-200" : ""} />
                       PRO SEARCH
                     </button>
 
                     {/* Deep Research Toggle (Pro only growth loop) */}
-                    <button 
+                    <button
                       type="button"
                       onClick={handleDeepResearchToggle}
-                      className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all cursor-pointer font-mono ${
-                        deepResearch && isPro
-                          ? "text-amber-300 bg-amber-500/10 border border-amber-500/20" 
+                      className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all cursor-pointer font-mono ${deepResearch && isPro
+                          ? "text-amber-300 bg-amber-500/10 border border-amber-500/20"
                           : "text-neutral-500 bg-transparent hover:text-white"
-                      }`}
+                        }`}
                     >
                       <Sparkles size={13} className="text-amber-400" />
                       DEEP RESEARCH
                     </button>
 
                     {/* Engineer Mode Tone Toggle */}
-                    <button 
+                    <button
                       type="button"
                       onClick={() => setEngineerMode(!engineerMode)}
-                      className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all cursor-pointer font-mono ${
-                        engineerMode 
-                          ? "text-emerald-300 bg-emerald-500/10 border border-emerald-500/20" 
+                      className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all cursor-pointer font-mono ${engineerMode
+                          ? "text-emerald-300 bg-emerald-500/10 border border-emerald-500/20"
                           : "text-neutral-500 bg-transparent hover:text-white"
-                      }`}
+                        }`}
                     >
                       <Terminal size={13} className={engineerMode ? "text-emerald-400" : ""} />
                       ENGINEER
                     </button>
 
-                    <button 
+                    <button
                       onClick={() => fileInputRef.current?.click()}
                       className="flex items-center gap-1.5 text-xs font-semibold text-neutral-500 hover:text-white bg-transparent px-3 py-1.5 rounded-lg transition-colors cursor-pointer font-mono"
                     >
@@ -362,10 +359,10 @@ const ChatInterface = ({ messages, isLoading, isStreaming, sendMessage, stopGene
 
           <div className="flex flex-wrap items-center justify-center gap-3 mt-8 text-xs text-neutral-500 font-mono uppercase tracking-wider animate-in fade-in duration-500">
             <button onClick={() => handleSendMessage("Compare Next.js and Remix frameworks")} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#141414] border border-[#262626] hover:border-neutral-700 hover:text-white transition-colors cursor-pointer">
-               <Search size={12} /> Compare React Frameworks
+              <Search size={12} /> Compare React Frameworks
             </button>
             <button onClick={() => handleSendMessage("What is today's date and time?")} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#141414] border border-[#262626] hover:border-neutral-700 hover:text-white transition-colors cursor-pointer">
-               <Globe size={12} /> Sync System Clock
+              <Globe size={12} /> Sync System Clock
             </button>
           </div>
         </div>
@@ -373,10 +370,10 @@ const ChatInterface = ({ messages, isLoading, isStreaming, sendMessage, stopGene
         <>
           {/* Active Messages Feed */}
           <div className="flex-1 overflow-y-auto scrollbar-hide pt-10 pb-40">
-             <div className="max-w-3xl mx-auto px-4 sm:px-6 w-full space-y-10">
+            <div className="max-w-3xl mx-auto px-4 sm:px-6 w-full space-y-10">
               {messages.map((msg, index) => {
                 const msgId = msg._id || msg.id;
-                
+
                 return (
                   <div key={index} className="flex flex-col animate-in fade-in duration-300">
                     {msg.role === "user" ? (
@@ -389,13 +386,13 @@ const ChatInterface = ({ messages, isLoading, isStreaming, sendMessage, stopGene
                               className="w-full bg-transparent text-white outline-hidden resize-none min-h-[80px]"
                             />
                             <div className="flex justify-end gap-2 text-xs font-mono font-semibold">
-                              <button 
+                              <button
                                 onClick={() => setEditingMessageId(null)}
                                 className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 cursor-pointer"
                               >
                                 CANCEL
                               </button>
-                              <button 
+                              <button
                                 onClick={() => handleSaveEdit(msgId)}
                                 className="px-3 py-1.5 rounded-lg bg-white text-black hover:bg-neutral-200 cursor-pointer"
                               >
@@ -475,19 +472,19 @@ const ChatInterface = ({ messages, isLoading, isStreaming, sendMessage, stopGene
                             </h4>
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                               {msg.sources.map((src, sIdx) => (
-                                <a 
-                                  key={sIdx} 
-                                  href={src.url} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer" 
+                                <a
+                                  key={sIdx}
+                                  href={src.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
                                   className="flex flex-col gap-1 p-3 bg-[#141414] border border-[#262626] rounded-xl hover:border-neutral-700 transition-all group cursor-pointer"
                                 >
                                   <div className="flex items-center gap-2">
-                                    <img 
-                                      src={`https://www.google.com/s2/favicons?sz=64&domain=${src.domain || 'google.com'}`} 
-                                      alt="" 
-                                      className="w-3.5 h-3.5 rounded-xs invert opacity-60 group-hover:opacity-100 transition-opacity" 
-                                      onError={(e) => {e.target.src = "/svg/perplexity.svg"}} 
+                                    <img
+                                      src={`https://www.google.com/s2/favicons?sz=64&domain=${src.domain || 'google.com'}`}
+                                      alt=""
+                                      className="w-3.5 h-3.5 rounded-xs invert opacity-60 group-hover:opacity-100 transition-opacity"
+                                      onError={(e) => { e.target.src = "/svg/perplexity.svg" }}
                                     />
                                     <span className="text-[10px] text-neutral-400 group-hover:text-white truncate font-medium font-mono">{src.domain}</span>
                                     <span className="text-[9px] text-neutral-400 bg-neutral-800 px-1.5 py-0.5 rounded-md ml-auto font-bold font-mono">{src.relevance}</span>
@@ -513,11 +510,11 @@ const ChatInterface = ({ messages, isLoading, isStreaming, sendMessage, stopGene
                               {msg.visuals.map((vis, vIdx) => (
                                 <div key={vIdx} className="flex-shrink-0 w-64 bg-[#141414] border border-[#262626] rounded-xl overflow-hidden shadow-lg flex flex-col hover:border-neutral-700 transition-colors">
                                   <div className="relative aspect-video bg-[#0c0c0c] overflow-hidden group">
-                                    <img 
-                                      src={vis.url} 
-                                      alt={vis.name} 
-                                      className="w-full h-full object-cover grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500" 
-                                      onError={(e) => {e.target.src = "/svg/perplexity.svg"}} 
+                                    <img
+                                      src={vis.url}
+                                      alt={vis.name}
+                                      className="w-full h-full object-cover grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
+                                      onError={(e) => { e.target.src = "/svg/perplexity.svg" }}
                                     />
                                     <div className="absolute top-2 right-2 bg-[#141414] border border-[#262626] px-2 py-0.5 rounded-md text-[10px] font-mono text-neutral-300">
                                       {vis.priceRange}
@@ -526,7 +523,7 @@ const ChatInterface = ({ messages, isLoading, isStreaming, sendMessage, stopGene
                                   <div className="p-3.5 flex flex-col gap-2 flex-1 font-mono">
                                     <span className="text-xs font-bold text-white truncate">{vis.name}</span>
                                     <p className="text-[10px] text-neutral-400 line-clamp-2 leading-relaxed">{vis.caption}</p>
-                                    
+
                                     <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-[#262626] text-[8px] uppercase font-bold text-center">
                                       <div className="text-neutral-300 bg-neutral-800/50 py-1 rounded-md">
                                         PRO SPECS
@@ -568,7 +565,7 @@ const ChatInterface = ({ messages, isLoading, isStreaming, sendMessage, stopGene
                               {copiedMessageId === msgId ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
                               <span>{copiedMessageId === msgId ? "COPIED" : "COPY"}</span>
                             </button>
-                            
+
                             <button
                               onClick={() => handleRegenerate(msg)}
                               className="flex items-center gap-1.5 hover:text-white transition-colors cursor-pointer ml-2"
@@ -585,100 +582,97 @@ const ChatInterface = ({ messages, isLoading, isStreaming, sendMessage, stopGene
                 );
               })}
               <div ref={scrollRef} className="h-10" />
-             </div>
+            </div>
           </div>
 
           {/* Bottom input area */}
           <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a] to-transparent pt-10 pb-6 px-4">
-             <div className="max-w-3xl mx-auto w-full">
-                <div className="bg-[#141414] border border-[#262626] rounded-[24px] shadow-2xl overflow-hidden focus-within:border-neutral-700 transition-all">
-                  <div className="flex flex-col px-4 pt-3 pb-2">
-                    {renderErrorMessage()}
-                    {renderFilePreview()}
-                    <PromptInput
-                      value={inputValue}
-                      onValueChange={setInputValue}
-                      onSubmit={() => handleSendMessage(inputValue)}
-                      disabled={isLoading || isStreaming || isUploading}
-                      className="bg-transparent border-none focus-within:ring-0 shadow-none px-0 py-0"
-                    >
-                      <PromptInputTextarea
-                        placeholder="Ask a follow-up..."
-                        className="bg-transparent border-none focus-visible:ring-0 text-[#e5e5e5] text-base resize-none min-h-10 placeholder:text-neutral-600 px-2"
-                      />
-                    </PromptInput>
-                    <div className="flex flex-wrap gap-2 justify-between items-center px-2 mt-1 border-t border-[#262626] pt-2">
-                      <div className="flex flex-wrap items-center gap-2">
-                        {/* Pro Search Toggle */}
-                        <button 
-                          type="button"
-                          onClick={() => setUseWebSearch(!useWebSearch)}
-                          className={`flex items-center gap-1.5 text-xs font-semibold transition-colors px-2 py-1 rounded-md cursor-pointer font-mono ${
-                            useWebSearch 
-                              ? "text-white bg-white/10" 
-                              : "text-neutral-500 hover:text-white"
+            <div className="max-w-3xl mx-auto w-full">
+              <div className="bg-[#141414] border border-[#262626] rounded-[24px] shadow-2xl overflow-hidden focus-within:border-neutral-700 transition-all">
+                <div className="flex flex-col px-4 pt-3 pb-2">
+                  {renderErrorMessage()}
+                  {renderFilePreview()}
+                  <PromptInput
+                    value={inputValue}
+                    onValueChange={setInputValue}
+                    onSubmit={() => handleSendMessage(inputValue)}
+                    disabled={isLoading || isStreaming || isUploading}
+                    className="bg-transparent border-none focus-within:ring-0 shadow-none px-0 py-0"
+                  >
+                    <PromptInputTextarea
+                      placeholder="Ask a follow-up..."
+                      className="bg-transparent border-none focus-visible:ring-0 text-[#e5e5e5] text-base resize-none min-h-10 placeholder:text-neutral-600 px-2"
+                    />
+                  </PromptInput>
+                  <div className="flex flex-wrap gap-2 justify-between items-center px-2 mt-1 border-t border-[#262626] pt-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      {/* Pro Search Toggle */}
+                      <button
+                        type="button"
+                        onClick={() => setUseWebSearch(!useWebSearch)}
+                        className={`flex items-center gap-1.5 text-xs font-semibold transition-colors px-2 py-1 rounded-md cursor-pointer font-mono ${useWebSearch
+                            ? "text-white bg-white/10"
+                            : "text-neutral-500 hover:text-white"
                           }`}
-                        >
-                          <Globe size={13} className={useWebSearch ? "text-neutral-200" : ""} />
-                          PRO SEARCH
-                        </button>
+                      >
+                        <Globe size={13} className={useWebSearch ? "text-neutral-200" : ""} />
+                        PRO SEARCH
+                      </button>
 
-                        {/* Deep Research Toggle */}
-                        <button 
-                          type="button"
-                          onClick={handleDeepResearchToggle}
-                          className={`flex items-center gap-1.5 text-xs font-semibold transition-colors px-2 py-1 rounded-md cursor-pointer font-mono ${
-                            deepResearch && isPro
-                              ? "text-amber-300 bg-amber-500/10 border border-amber-500/20" 
-                              : "text-neutral-500 hover:text-white"
+                      {/* Deep Research Toggle */}
+                      <button
+                        type="button"
+                        onClick={handleDeepResearchToggle}
+                        className={`flex items-center gap-1.5 text-xs font-semibold transition-colors px-2 py-1 rounded-md cursor-pointer font-mono ${deepResearch && isPro
+                            ? "text-amber-300 bg-amber-500/10 border border-amber-500/20"
+                            : "text-neutral-500 hover:text-white"
                           }`}
-                        >
-                          <Sparkles size={13} className="text-amber-400" />
-                          DEEP RESEARCH
-                        </button>
+                      >
+                        <Sparkles size={13} className="text-amber-400" />
+                        DEEP RESEARCH
+                      </button>
 
-                        {/* Engineer Mode Toggle */}
-                        <button 
-                          type="button"
-                          onClick={() => setEngineerMode(!engineerMode)}
-                          className={`flex items-center gap-1.5 text-xs font-semibold transition-colors px-2 py-1 rounded-md cursor-pointer font-mono ${
-                            engineerMode 
-                              ? "text-emerald-300 bg-emerald-500/10 border border-emerald-500/20" 
-                              : "text-neutral-500 hover:text-white"
+                      {/* Engineer Mode Toggle */}
+                      <button
+                        type="button"
+                        onClick={() => setEngineerMode(!engineerMode)}
+                        className={`flex items-center gap-1.5 text-xs font-semibold transition-colors px-2 py-1 rounded-md cursor-pointer font-mono ${engineerMode
+                            ? "text-emerald-300 bg-emerald-500/10 border border-emerald-500/20"
+                            : "text-neutral-500 hover:text-white"
                           }`}
-                        >
-                          <Terminal size={13} className="text-emerald-400" />
-                          ENGINEER
-                        </button>
+                      >
+                        <Terminal size={13} className="text-emerald-400" />
+                        ENGINEER
+                      </button>
 
-                        <button 
-                          onClick={() => fileInputRef.current?.click()}
-                          className="flex items-center gap-1.5 text-xs font-semibold text-neutral-500 hover:text-white transition-colors px-2 py-1 cursor-pointer font-mono"
-                        >
-                          <Plus size={13} />
-                          ATTACH
-                        </button>
-                      </div>
-                      {isStreaming || isUploading ? (
-                        <button
-                          onClick={stopGenerating}
-                          className="p-1.5 rounded-full bg-white text-black hover:bg-neutral-200 transition-colors cursor-pointer"
-                        >
-                          {isUploading ? <Loader size="xs" className="text-black" /> : <Square fill="currentColor" size={14} strokeWidth={0} />}
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => handleSendMessage(inputValue)}
-                          disabled={(!inputValue.trim() && !attachedFile) || isLoading}
-                          className="p-1.5 rounded-full bg-white text-black disabled:bg-[#1f1f1f] disabled:text-neutral-600 hover:bg-neutral-200 transition-colors disabled:cursor-not-allowed cursor-pointer"
-                        >
-                          <ArrowRight size={16} strokeWidth={2.5} />
-                        </button>
-                      )}
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="flex items-center gap-1.5 text-xs font-semibold text-neutral-500 hover:text-white transition-colors px-2 py-1 cursor-pointer font-mono"
+                      >
+                        <Plus size={13} />
+                        ATTACH
+                      </button>
                     </div>
+                    {isStreaming || isUploading ? (
+                      <button
+                        onClick={stopGenerating}
+                        className="p-1.5 rounded-full bg-white text-black hover:bg-neutral-200 transition-colors cursor-pointer"
+                      >
+                        {isUploading ? <Loader size="xs" className="text-black" /> : <Square fill="currentColor" size={14} strokeWidth={0} />}
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleSendMessage(inputValue)}
+                        disabled={(!inputValue.trim() && !attachedFile) || isLoading}
+                        className="p-1.5 rounded-full bg-white text-black disabled:bg-[#1f1f1f] disabled:text-neutral-600 hover:bg-neutral-200 transition-colors disabled:cursor-not-allowed cursor-pointer"
+                      >
+                        <ArrowRight size={16} strokeWidth={2.5} />
+                      </button>
+                    )}
                   </div>
                 </div>
-             </div>
+              </div>
+            </div>
           </div>
         </>
       )}

@@ -41,7 +41,7 @@ const Library = () => {
 
   // Group chats chronologically
   const getGroupedChats = () => {
-    const filtered = chats.filter(c => 
+    const filtered = chats.filter(c =>
       c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (c.lastMessage && c.lastMessage.toLowerCase().includes(searchQuery.toLowerCase()))
     );
@@ -133,7 +133,7 @@ const Library = () => {
     >
       <div className="flex flex-col h-full w-full bg-[#171615] text-[#e8e8e6] overflow-y-auto">
         <div className="max-w-3xl mx-auto w-full px-4 sm:px-6 py-12">
-          
+
           <div className="flex items-center gap-3 mb-4">
             <LibraryIcon size={24} className="text-[#8e8e8e]" />
             <h1 className="text-3xl sm:text-4xl font-serif tracking-tight text-white">

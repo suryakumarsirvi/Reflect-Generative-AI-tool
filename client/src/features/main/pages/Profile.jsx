@@ -12,13 +12,13 @@ const Profile = () => {
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  
+
   const [fullname, setFullname] = useState("");
   const [tone, setTone] = useState("neutral");
   const [searchStyle, setSearchStyle] = useState("fast");
   const [interestTags, setInterestTags] = useState([]);
   const [newTag, setNewTag] = useState("");
-  
+
   const [isSaving, setIsSaving] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -132,8 +132,8 @@ const Profile = () => {
     >
       <div className="flex flex-col h-full w-full bg-[#171615] text-[#e8e8e6] overflow-y-auto">
         <div className="max-w-3xl mx-auto w-full px-4 sm:px-6 py-12">
-          
-          <button 
+
+          <button
             onClick={() => navigate("/home")}
             className="flex items-center gap-2 text-[#8e8e8e] hover:text-white transition-colors mb-8 w-fit cursor-pointer"
           >
@@ -146,7 +146,7 @@ const Profile = () => {
           </h1>
 
           <div className="bg-[#202222] border border-white/5 rounded-3xl p-6 sm:p-8 shadow-xl flex flex-col gap-8">
-            
+
             {/* Header Section */}
             <div className="flex flex-col sm:flex-row items-center gap-6 pb-6 border-b border-white/5">
               <div className="relative">
@@ -207,7 +207,7 @@ const Profile = () => {
 
             {/* Profile Forms */}
             <form onSubmit={handleSaveProfile} className="flex flex-col gap-6">
-              
+
               <div className="flex items-center gap-2 text-white font-semibold">
                 <Settings size={18} className="text-amber-500" />
                 <span>Search & Reasoning Preferences</span>
@@ -240,7 +240,7 @@ const Profile = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
+
                 {/* Tone Dropdown */}
                 <div className="flex flex-col gap-2">
                   <label className="text-xs font-bold uppercase tracking-wider text-[#8e8e8e]">
@@ -279,18 +279,18 @@ const Profile = () => {
                 <label className="text-xs font-bold uppercase tracking-wider text-[#8e8e8e]">
                   Interest Tags (AI Context personalization)
                 </label>
-                
+
                 <div className="flex flex-wrap gap-2 p-3 bg-[#262828] border border-white/10 rounded-xl min-h-16">
                   {interestTags.length === 0 ? (
                     <span className="text-[#5c5d5d] text-sm self-center">No interests added. Type below to customize reasoning contexts.</span>
                   ) : (
                     interestTags.map((tag) => (
-                      <span 
-                        key={tag} 
+                      <span
+                        key={tag}
                         className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-[#e8e8e6] transition-colors"
                       >
                         {tag}
-                        <button 
+                        <button
                           type="button"
                           onClick={() => handleRemoveTag(tag)}
                           className="hover:text-red-400 p-0.5 rounded-full cursor-pointer"

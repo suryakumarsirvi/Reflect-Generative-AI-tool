@@ -75,7 +75,7 @@ const Discover = () => {
     >
       <div className="flex flex-col h-full w-full bg-[#171615] text-[#e8e8e6] overflow-y-auto">
         <div className="max-w-3xl mx-auto w-full px-4 sm:px-6 py-12">
-          
+
           <div className="flex items-center gap-3 mb-4">
             <Compass size={24} className="text-[#8e8e8e]" />
             <h1 className="text-3xl sm:text-4xl font-serif tracking-tight text-white">
@@ -88,8 +88,8 @@ const Discover = () => {
 
           <div className="grid grid-cols-1 gap-6">
             {trendingTopics.map((topic, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 onClick={() => handleTopicClick(topic.query)}
                 className="bg-[#202222] border border-white/5 hover:border-white/10 rounded-2xl p-6 transition-all duration-300 group cursor-pointer flex flex-col gap-3 hover:translate-x-1"
               >
@@ -100,11 +100,11 @@ const Discover = () => {
                   </div>
                   <span className="text-[10px] text-[#8e8e8e]">{topic.readTime}</span>
                 </div>
-                
+
                 <h2 className="text-xl font-semibold text-white group-hover:text-blue-400 transition-colors">
                   {topic.title}
                 </h2>
-                
+
                 <p className="text-sm text-[#8e8e8e] leading-relaxed">
                   {topic.description}
                 </p>
