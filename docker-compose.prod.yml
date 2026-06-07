@@ -1,0 +1,12 @@
+services:
+  client:
+    image: suryakumarsirvi/discovery-client
+    ports:
+      - "5173:5173"
+
+  server:
+    image: suryakumarsirvi/discovery-server
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env

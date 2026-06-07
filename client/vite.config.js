@@ -13,9 +13,10 @@ export default defineConfig({
   },
   server:{
     host: "0.0.0.0",
+    allowedHosts: true,
     proxy: {
       "/api": {
-        target: "http://server:5000",
+        target: "http://discovery-server:5000" ||"http://server:5000",
         secure: false,
         changeOrigin: true
       }
