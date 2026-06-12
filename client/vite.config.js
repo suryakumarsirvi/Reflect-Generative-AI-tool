@@ -11,12 +11,14 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  server:{
+  server: {
     host: "0.0.0.0",
-    allowedHosts: true,
+    allowedHosts: [
+      "ec2-65-0-170-113.ap-south-1.compute.amazonaws.com",
+    ],
     proxy: {
       "/api": {
-        target: "http://discovery-server:5000" ||"http://server:5000",
+        target: "http://discovery-server:5000" || "http://server:5000",
         secure: false,
         changeOrigin: true
       }
